@@ -66,7 +66,12 @@ from esptool.cmds import (
     write_mem,
 )
 from esptool.config import load_config_file
-from esptool.loader import DEFAULT_CONNECT_ATTEMPTS, ESPLoader, list_ports
+from esptool.loader import (
+    DEFAULT_CONNECT_ATTEMPTS,
+    DEFAULT_RETRY_OPEN_SERIAL,
+    ESPLoader,
+    list_ports,
+)
 from esptool.targets import CHIP_DEFS, CHIP_LIST, ESP32ROM
 from esptool.util import (
     FatalError,
@@ -167,6 +172,16 @@ def main(argv=None, esp=None):
         ),
         type=int,
         default=os.environ.get("ESPTOOL_CONNECT_ATTEMPTS", DEFAULT_CONNECT_ATTEMPTS),
+    )
+
+    parser.add_argument(
+        "--retry-open-serial",
+        help=(
+            "Retry opening the serial port indefinitely. "
+            "Default: %s" % DEFAULT_RETRY_OPEN_SERIAL
+        ),
+        default=os.environ.get("ESPTOOL_RETRY_OPEN_SERIAL", DEFAULT_RETRY_OPEN_SERIAL),
+        action="store_true",
     )
 
     subparsers = parser.add_subparsers(
@@ -723,6 +738,7 @@ def main(argv=None, esp=None):
             port=args.port,
             connect_attempts=args.connect_attempts,
             initial_baud=initial_baud,
+            retry_open_serial=args.retry_open_serial,
             chip=args.chip,
             trace=args.trace,
             before=args.before,
@@ -1044,6 +1060,7 @@ def get_default_connected_device(
     port,
     connect_attempts,
     initial_baud,
+    retry_open_serial=False,
     chip="auto",
     trace=False,
     before="default_reset",
@@ -1058,7 +1075,7 @@ def get_default_connected_device(
                 )
             else:
                 chip_class = CHIP_DEFS[chip]
-                _esp = chip_class(each_port, initial_baud, trace)
+                _esp = chip_class(each_port, initial_baud, trace, retry_open_serial)
                 _esp.connect(before, connect_attempts)
             break
         except (FatalError, OSError) as err:
