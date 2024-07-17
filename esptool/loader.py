@@ -340,12 +340,12 @@ class ESPLoader(object):
                     if retry_open_serial:
                         if not printed_failure:
                             print(e)
-                            print("Retrying to open port ", end="")
+                            print("Retrying to open port ", end="", flush=True)
                             printed_failure = True
                         else:
                             if retry_attempts % 9 == 0:
                                 # print a dot every second
-                                print(".", end="")
+                                print(".", end="", flush=True)
                         time.sleep(0.1)
                         retry_attempts += 1
                         continue
