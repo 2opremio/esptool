@@ -12,6 +12,7 @@ import re
 import string
 import struct
 import sys
+import termios
 import time
 from typing import Optional
 
@@ -336,7 +337,12 @@ class ESPLoader(object):
                         # break the retrying line
                         print("")
                     break
-                except serial.serialutil.SerialException as e:
+                except (
+                    serial.serialutil.SerialException,
+                    IOError,
+                    OSError,
+                    termios.error,
+                ) as e:
                     if retry_open_serial:
                         if not printed_failure:
                             print(e)
