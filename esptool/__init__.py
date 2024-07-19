@@ -1196,6 +1196,7 @@ def _main():
         print(f"\nA fatal error occurred: {e}")
         sys.exit(2)
     except serial.serialutil.SerialException as e:
+        print(traceback.format_exc())
         print(f"\nA serial exception error occurred: {e}")
         print(
             "Note: This error originates from pySerial. "
